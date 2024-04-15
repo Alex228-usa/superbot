@@ -1,4 +1,4 @@
-import TelegramBot, { Message } from 'node-telegram-bot-api';
+import TelegramBot, { Message, ReplyKeyboardMarkup, CallbackQuery } from 'node-telegram-bot-api';
 import axios from 'axios';
 
 const token = '7023230142:AAH6bPE_4dXa8jLM5da83MTSZ10x0VX0APQ';
@@ -34,38 +34,36 @@ const heroes = [
 // Обработчик команды /start
 bot.onText(/\/start/, (msg: Message) => {
     const chatId = msg.chat.id;
-    bot.sendMessage(chatId, 'Привет! Я бот супергероев. Чтобы узнать информацию о герое, напиши его ID.');
+    const message = 'Привет! Я бот супергероев. Чтобы узнать информацию о герое, напиши его ID.';
+    const keyboard: ReplyKeyboardMarkup = {
+        resize_keyboard: true,
+        keyboard: [
+            [{ text: 'Показать топ 10 супергероев' }]
+        ]
+    };
+    bot.sendMessage(chatId, message, { reply_markup: keyboard });
 });
 
-// Обработчик текстовых сообщений
-bot.on('message', async (msg: Message) => {
+// Обработчик нажатия на кнопку "Показать топ 10 супергероев"
+bot.onText(/Показать топ 10 супергероев/, async (msg: Message) => {
     const chatId = msg.chat.id;
-    const text = msg.text ? msg.text.trim() : '';
-
-    // Проверяем, является ли текст числом (ID героя)
-    if (!isNaN(Number(text))) {
-        const heroId = parseInt(text);
-        const hero = heroes.find(hero => hero.id === heroId);
-        if (hero) {
-            const message = `
-                Имя: ${hero.name}
-                Полное имя: ${hero.full_name}
-                Раса: ${hero.race}
-                Статистика:
-                - Интеллект: ${hero.INT}
-                - Сила: ${hero.STR}
-                - Скорость: ${hero.SPD}
-                - Выносливость: ${hero.DUR}
-                - Сила удара: ${hero.POW}
-                - Комбат: ${hero.CMB}
-            `;
-            bot.sendMessage(chatId, message);
-        } else {
-            bot.sendMessage(chatId, 'Герой не найден. Попробуйте другой ID.');
-        }
-    } else {
-        bot.sendMessage(chatId, 'Пожалуйста, введите ID героя.');
-    }
+    const topHeroes = heroes.slice(0, 10); // Получаем первые 10 героев
+    const message = 'Топ 10 супергероев:';
+    const heroMessages = topHeroes.map(hero => {
+        return `
+            Имя: ${hero.name}
+            Полное имя: ${hero.full_name}
+            Раса: ${hero.race}
+            Статистика:
+            - Интеллект: ${hero.INT}
+            - Сила: ${hero.STR}
+            - Скорость: ${hero.SPD}
+            - Выносливость: ${hero.DUR}
+            - Сила удара: ${hero.POW}
+            - Комбат: ${hero.CMB}
+        `;
+    });
+    bot.sendMessage(chatId, `${message}\n\n${heroMessages.join('\n\n')}`);
 });
 
 // Обработчик ошибок
@@ -74,3 +72,5 @@ bot.on('polling_error', (error: any) => {
 });
 
 console.log('Бот запущен!');
+
+
