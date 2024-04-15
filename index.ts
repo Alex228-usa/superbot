@@ -38,11 +38,12 @@ bot.onText(/\/start/, (msg: Message) => {
     const keyboard: ReplyKeyboardMarkup = {
         resize_keyboard: true,
         keyboard: [
-            [{ text: 'Показать топ 10 супергероев' }]
+            [{ text: '🔝 Показать топ 10 супергероев' }] // Добавлен эмоджи 🔝
         ]
     };
     bot.sendMessage(chatId, message, { reply_markup: keyboard });
 });
+
 
 // Обработчик нажатия на кнопку "Показать топ 10 супергероев"
 bot.onText(/Показать топ 10 супергероев/, async (msg: Message) => {
